@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "246756640932",
+    "project_id": "keropro",
+    "storage_bucket": "keropro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246756640932:android:84e854b96c07efd3f1be31",
+        "android_client_info": {
+          "package_name": "upxv.cibernexus.keropro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCus-jqKT2oE6i9DgIaVMVCLB9LudolAe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
