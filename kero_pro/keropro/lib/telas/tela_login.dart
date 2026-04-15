@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:keropro/telas/tela_cadastro.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:keropro/telas/tela_clientes.dart';
+import 'package:keropro/telas/tela_profissional.dart';
 
 class TelaLogin extends StatefulWidget{
   const TelaLogin({super.key});
@@ -14,23 +17,40 @@ class _TelaLoginState extends State<TelaLogin> {
   final _senhaController = TextEditingController();
 
   Future<void> _fazerLogin() async {
-    String emailDigitado = _emailController.text;
-    String senhaDigitada = _senhaController.text;
+    String emailDigitado = _emailController.text.trim();
+    String senhaDigitada = _senhaController.text.trim();
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      UserCredential credencial = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
         email: emailDigitado,
         password: senhaDigitada,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login realizado com sucesso! 🚀'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      DocumentSnapshot documento = await FirebaseFirestore.instance
+          .collection('usuarios').doc(credencial.user!.uid).get();
 
-      // (No futuro, aqui o app pulará para a Tela Principal do encanador/pintor)
+      if (documento.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login realizado com sucesso! 🚀'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        String tipoUsuario = documento['tipoUsuario'];
+
+        if (tipoUsuario == 'cliente') {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const TelaClientes()));
+        } else {
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const TelaProfissional()));
+        }
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro: Perfil de usuário incompleto no banco de dados.')),
+        );
+      }
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
