@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class TelaClientes extends StatefulWidget {
@@ -41,9 +42,21 @@ class _TelaClientesState extends State<TelaClientes> {
                 Map<String, String> novoPedido = {
                   "titulo": _tituloController.text,
                   "cliente": clienteLogado,
-                  "valor": "R\$ ${_valorTaxa.toStringAsFixed(2)}"
+                  "valor": "R\$ ${_valorTaxa.toStringAsFixed(2)}",
+                  "status": "pendente"
                 };
-                print("🚀 NOVO PEDIDO GERADO: $novoPedido");
+                FirebaseFirestore.instance
+                    .collection("servicos")
+                    .add(novoPedido)
+                    .then((value){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Pedido de ajuda enviado!"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                });
+                Navigator.pop(context);
               },
                   child: Text("Pedir Ajuda!")),
             ),

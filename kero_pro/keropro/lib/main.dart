@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:keropro/telas/tela_inicial.dart';
 import 'package:keropro/telas/tela_login.dart';
 
 
@@ -22,7 +23,7 @@ class KeroPro extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const TelaLogin(),
+      home: const TelaInicial(),
     );
   }
 }

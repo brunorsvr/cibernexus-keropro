@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class TelaDetalhesServico extends StatelessWidget{
-  const TelaDetalhesServico({super.key, required this.tiluloServico, required this.clienteServico, required this.precoServico});
+  const TelaDetalhesServico({super.key, required this.tiluloServico, required this.clienteServico, required this.precoServico,required this.idServico});
   final String tiluloServico;
   final String clienteServico;
   final String precoServico;
-
+  final String idServico;
 
 
   @override
@@ -37,6 +38,10 @@ class TelaDetalhesServico extends StatelessWidget{
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () {
+                      FirebaseFirestore.instance
+                          .collection("servicos")
+                          .doc(idServico)
+                          .update({"status": "aceito"});
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Serviço aceito! O cliente será notificado.'),
