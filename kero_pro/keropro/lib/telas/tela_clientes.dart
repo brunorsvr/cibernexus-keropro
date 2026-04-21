@@ -1,7 +1,7 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TelaClientes extends StatefulWidget {
   const TelaClientes({super.key});
@@ -12,8 +12,33 @@ class TelaClientes extends StatefulWidget {
 
 class _TelaClientesState extends State<TelaClientes> {
   final _tituloController = TextEditingController();
-  double _valorTaxa = 15.00;
-  double _distanciaKm = 5.0;
+  double _valorTaxa = 0;
+  double _distanciaKm = 0;
+  final double latBase = -23.5015;
+  final double lonBase = -47.4581;
+  double? _latCliente;
+  double? _lonCliente;
+
+  Future<void> _pedirPermissaoGPS() async{
+    bool servicoAtivado = await Geolocator.isLocationServiceEnabled();
+    LocationPermission permissao = await Geolocator.checkPermission();
+    if (permissao == LocationPermission.denied){
+      permissao = await Geolocator.requestPermission();
+    }
+    Position posicaoAtual = await Geolocator.getCurrentPosition();
+    double distanciaEmMetros = Geolocator.distanceBetween(latBase, lonBase, posicaoAtual.latitude, posicaoAtual.longitude);
+    setState(() {
+      _distanciaKm = distanciaEmMetros / 1000;
+      _valorTaxa = 5.00 + (_distanciaKm * 1.5);
+      _latCliente = posicaoAtual.latitude;
+      _lonCliente = posicaoAtual.longitude;
+    });
+  }
+  @override
+  void initState() {
+    super.initState();
+    _pedirPermissaoGPS();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +51,20 @@ class _TelaClientesState extends State<TelaClientes> {
               decoration: InputDecoration(labelText: "Qual o problema?"),),
             SizedBox(height: 24),
             Text("Distância: ${_distanciaKm.toInt()} km"),
-            Slider(min: 1.0, max: 50.0,
-                value: _distanciaKm,
-                onChanged: (novoValor){
-                    setState(() {
-                      _distanciaKm = novoValor;
-                      _valorTaxa = 5.00 * (_distanciaKm *1.50);
-                    });
-                }),
             Text("Valor: R\$ ${_valorTaxa.toStringAsFixed(2)}", style: TextStyle(fontSize: 20)),
             SizedBox(height: 24),
             SizedBox(width: double.infinity, height: 50,
-              child: ElevatedButton(onPressed: (){
-                String clienteLogado = "Pedro Simoes";
-                Map<String, String> novoPedido = {
+              child: ElevatedButton(onPressed: () async{
+               // final String idUsuarioLogado = FirebaseAuth.instance.currentUser!.uid;
+                final String idUsuarioLogado = "cliente_teste_001";
+                Map<String, dynamic> novoPedido = {
                   "titulo": _tituloController.text,
-                  "cliente": clienteLogado,
+                  "cliente": "Pedro Simoes",
+                  "clienteId": idUsuarioLogado,
                   "valor": "R\$ ${_valorTaxa.toStringAsFixed(2)}",
-                  "status": "pendente"
+                  "status": "pendente",
+                  "latitude": _latCliente,
+                  "longitude": _lonCliente
                 };
                 FirebaseFirestore.instance
                     .collection("servicos")
@@ -55,8 +76,9 @@ class _TelaClientesState extends State<TelaClientes> {
                       backgroundColor: Colors.green,
                     ),
                   );
-                });
-                Navigator.pop(context);
+                  Navigator.pop(context);
+                }
+                );
               },
                   child: Text("Pedir Ajuda!")),
             ),

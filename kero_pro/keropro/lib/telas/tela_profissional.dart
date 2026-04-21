@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:keropro/telas/tela_detalhes_servico.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'tela_meus_servicos.dart';
 
 class TelaProfissional extends StatefulWidget {
   const TelaProfissional({super.key});
@@ -14,7 +15,12 @@ class _TelaProfissionalState extends State<TelaProfissional> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Área do Profissional'), backgroundColor: Colors.blue,),
+      appBar: AppBar(title: const Text('Área do Profissional'), actions: [
+        IconButton(onPressed: (){
+          Navigator.push(context, MaterialPageRoute(
+              builder: (context) => TelaMeusServicos()));
+        }, icon: Icon(Icons.assignment))
+      ], backgroundColor: Colors.blue,),
       body: StreamBuilder(stream: FirebaseFirestore.instance
           .collection("servicos")
           .where("status", isEqualTo: "pendente" )
@@ -43,6 +49,8 @@ class _TelaProfissionalState extends State<TelaProfissional> {
                                   clienteServico: listaPedidos[index]["cliente"] ?? "Cliente sem nome",
                                   precoServico: listaPedidos[index]["valor"] ?? "R\$ 0.00",
                                   idServico: listaPedidos[index].id,
+                                  latCliente: listaPedidos[index]["latitude"],
+                                  lonCliente: listaPedidos[index]["longitude"]
                               ),
                             )
                             );
